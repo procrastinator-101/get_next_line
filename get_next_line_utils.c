@@ -6,19 +6,29 @@
 /*   By: yarroubi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 17:59:05 by yarroubi          #+#    #+#             */
-/*   Updated: 2021/01/25 18:24:21 by yarroubi         ###   ########.fr       */
+/*   Updated: 2021/01/26 19:37:31 by youness          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	ft_strcncpy(char *dest, char *src, char c, int len)
+void	ft_strfcpy(char *dest, char *src, int size)
 {
-	int	i;
+	long long	*holder;
+	long long	*holder2;
+	int			i;
 
-	i = -1;
-	while (++i < len && src[i] != c)
+	i = sizeof(long long);
+	holder = (long long *)dest;
+	holder2 = (long long *)src;
+	while (i <= size)
+	{
+		*holder = *holder2;
+		i += sizeof(long long);
+		holder++;
+		holder2++;
+	}
+	i -= sizeof(long long) + 1;
+	while (++i < size)
 		dest[i] = src[i];
-	if (len > 0)
-		dest[len - 1] = 0;
 }
