@@ -6,7 +6,7 @@
 /*   By: yarroubi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 17:11:01 by yarroubi          #+#    #+#             */
-/*   Updated: 2021/01/26 19:14:16 by youness          ###   ########.fr       */
+/*   Updated: 2021/01/26 20:38:25 by youness          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ typedef struct		s_file
 }					t_file;
 
 int					get_next_line(int fd, char **line);
+int					update_line(t_file *file, char **line, int dst_size, \
+					int src_len);
 void				ft_strfcpy(char *dest, char *src, int size);
 
 #endif
