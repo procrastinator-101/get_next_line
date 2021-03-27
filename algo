@@ -1,0 +1,11 @@
+
+
+
+
+if (buffer is empty)
+	read;
+fill_the_line_from_the_buffer
+if (the line is complete)
+	return;
+else
+	continue
