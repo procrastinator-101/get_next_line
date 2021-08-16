@@ -14,47 +14,46 @@
 
 static t_file	*get_current_file(t_file **files, int fd)
 {
-	t_file	*tail;
-	t_file	*current_file;
+	t_file	*current;
 
-	tail = *files;
-	while (tail)
-	{
-		if (tail->fd == fd)
-			return (tail);
-		if (tail->next)
-			tail = tail->next;
-		else
-			break ;
-	}
-	current_file = malloc(sizeof(t_file));
-	if (!current_file)
-		return (0);
-	current_file->fd = fd;
-	current_file->start = 0;
-	current_file->next = 0;
-	if (tail)
-		tail->next = current_file;
-	else
-		*files = current_file;
-	return (current_file);
+	current = ft_file_find(*files, fd);
+	if (current)
+		return (current);
+	current = ft_file_create(fd);
+	if (!current)
+		return (current);
+	ft_file_addfront(files, current);
+	return (current);
 }
 
-static int		destroy_file(t_file **files, int fd, int ret)
+int	update_line(t_file *file, char **line, int size)
 {
-	t_file	*tail;
+	int		i;
+    int		new_size;
+    char    *str;
 
-	tail = *files;
-	while (tail)
-	{
-		if (tail->fd == fd)
-		{
-			free(tail);
-			return (ret);
-		}
-		tail = tail->next;
-	}
-	return (ret);
+	i = file->start;
+    while (file->buffer[i] && file->buffer[i] != '\n')
+        i++;
+	if (size)
+		size--;
+	new_size = size + i + 1 - file->start;
+    str = malloc(new_size * sizeof(char));
+    if (!str)
+    {
+        free(*line);
+        *line = 0;
+        return (-1);
+    }
+    ft_memcpy(str, *line, size);
+    ft_memcpy(str + size, file->buffer + file->start, new_size - size);
+	if (!file->buffer[i] || !file->buffer[i + 1])
+		file->start = 0;
+	else
+		file->start += new_size - size;
+    free(*line);
+    *line = str;
+    return (new_size);
 }
 
 int				get_next_line(int fd, char **line)
@@ -73,20 +72,22 @@ int				get_next_line(int fd, char **line)
 		return (-1);
 	while (1)
 	{
-		ret = 1;
 		if (!current_file->start)
 		{
 			ret = read(current_file->fd, current_file->buffer, BUFFER_SIZE);
 			if (ret > 0)
 				current_file->buffer[ret] = 0;
+			else
+			{
+				ft_file_remove(&files, current_file->fd);
+				return (ret);
+			}
 		}
-		if (ret < 1)
-			return (destroy_file(&files, current_file->fd, ret));
-		//printf("start = %d \t size = %d\n", current_file->start, size);
+		//printf("start = %d \t size = %d last = %d\n", current_file->start, size, current_file->buffer[current_file->start]);
 		size = update_line(current_file, line, size);
-		//printf("start = %d \t size = %d\n", current_file->start, size);
 		if (current_file->start >= BUFFER_SIZE)
 			current_file->start = 0;
+		//printf("++start = %d \t size = %d last = %d\n", current_file->start, size, current_file->buffer[current_file->start]);
 		if ((*line)[size - 1] == '\n')
 		{
 			(*line)[size - 1] = 0;

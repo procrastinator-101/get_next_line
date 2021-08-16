@@ -13,26 +13,28 @@
 #include <stdio.h>
 #include "get_next_line.h"
 
-int main()
+int main(int argc, char **argv)
 {
-	char *line;
+	int		ret;
+	int		fd[argc - 1];
+	char	*line;
 
-	int fd1 = open("get_next_line.h", O_RDONLY);
-	int fd2 = open("input", O_RDONLY);
-	int fd3 = open("get_next_line.c", O_RDONLY);
-	int fd = fd1;
-	int ret = 1;
-	int i = 0;
-	while ((ret = get_next_line(fd, &line)) > 0)
+	if (argc < 2)
+		return (0);
+	for (int i = 0; i < argc - 1; i++)
+		fd[i] = open(argv[i + 1], O_RDONLY);
+	for (int i = 0; i < argc - 1; i++)
 	{
-		printf("%s\n", line);
-		free(line);
-		i++;
-		if (i % 2)
-			fd = fd2;
-		else
-			fd = fd3;
+		while (1)
+		{
+			ret = get_next_line(fd[i], &line);
+			if (ret < 1)
+				break ;
+			printf("%s\n", line);
+			free(line);
+			//printf("ret = %d\n", ret);
+		}
+		//printf("return = %d\n", ret);
 	}
-	printf("return = %d\n", ret);
 	return (0);
 }

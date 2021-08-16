@@ -21,13 +21,18 @@
 typedef struct		s_file
 {
 	int				fd;
-	int				start;
+	int				start;							//start of the following line
 	char			buffer[BUFFER_SIZE + 1];
 	struct s_file	*next;
 }					t_file;
 
 int					get_next_line(int fd, char **line);
 int					update_line(t_file *file, char **line, int size);
-void				ft_strfcpy(char *dest, char *src, int size);
+void				*ft_memcpy(void *dst, const void *src, size_t n);
+
+t_file				*ft_file_addfront(t_file **files, t_file *node);
+t_file				*ft_file_create(int fd);
+t_file				*ft_file_find(t_file *files, int fd);
+void				ft_file_remove(t_file **files, int fd);
 
 #endif

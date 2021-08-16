@@ -31,12 +31,12 @@ int	update_line(t_file *file, char **line, int size)
         *line = 0;
         return (-1);
     }
-    ft_strfcpy(str, *line, size);
-    ft_strfcpy(str + size, file->buffer + file->start, new_size - size);
-	if (file->buffer[i])
-		file->start += new_size - size;
-	else
+    ft_memcpy(str, *line, size);
+    ft_memcpy(str + size, file->buffer + file->start, new_size - size);
+	if (!file->buffer[i] || !file->buffer[i + 1])
 		file->start = 0;
+	else
+		file->start += new_size - size;
     free(*line);
     *line = str;
     return (new_size);
