@@ -13,17 +13,17 @@
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <stdio.h>
 
 # define RET_SUCCESS	-2
 
-typedef struct		s_file
+typedef struct s_file
 {
 	int				fd;
-	int				start;							//start of the following line
+	int				start;
 	char			buffer[BUFFER_SIZE + 1];
 	struct s_file	*next;
 }					t_file;
