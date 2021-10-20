@@ -6,13 +6,13 @@
 /*   By: yarroubi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 17:13:02 by yarroubi          #+#    #+#             */
-/*   Updated: 2021/03/27 22:00:43 by youness          ###   ########.fr       */
+/*   Updated: 2021/10/20 13:58:14 by yarroubi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static t_file	*get_current_file(t_file **files, int fd)
+t_file	*get_current_file(t_file **files, int fd)
 {
 	t_file	*current;
 
@@ -26,37 +26,74 @@ static t_file	*get_current_file(t_file **files, int fd)
 	return (current);
 }
 
-int	update_line(t_file *file, char **line, int size)
+static char	*ft_initialise_str(char **line, int size, int new_size)
+{
+	char	*str;
+
+	str = malloc(new_size * sizeof(char));
+	if (!str)
+	{
+		free(*line);
+		*line = 0;
+		return (0);
+	}
+	ft_memcpy(str, *line, size);
+	return (str);
+}
+
+static int	update_line(t_file *file, char **line, int size)
 {
 	int		i;
-    int		new_size;
-    char    *str;
+	int		new_size;
+	char	*str;
 
 	i = file->start;
-    while (file->buffer[i] && file->buffer[i] != '\n')
-        i++;
+	while (file->buffer[i] && file->buffer[i] != '\n')
+		i++;
 	if (size)
 		size--;
 	new_size = size + i + 1 - file->start;
-    str = malloc(new_size * sizeof(char));
-    if (!str)
-    {
-        free(*line);
-        *line = 0;
-        return (-1);
-    }
-    ft_memcpy(str, *line, size);
-    ft_memcpy(str + size, file->buffer + file->start, new_size - size);
+	str = ft_initialise_str(line, size, new_size);
+	if (!str)
+		return (-1);
+	ft_memcpy(str + size, file->buffer + file->start, new_size - size);
 	if (!file->buffer[i] || !file->buffer[i + 1])
 		file->start = 0;
 	else
 		file->start += new_size - size;
-    free(*line);
-    *line = str;
-    return (new_size);
+	free(*line);
+	*line = str;
+	return (new_size);
 }
 
-int				get_next_line(int fd, char **line)
+static int	ft_fill_line(char **line, t_file **files, t_file *current_file, \
+			int *size)
+{
+	int	ret;
+
+	if (!current_file->start)
+	{
+		ret = read(current_file->fd, current_file->buffer, BUFFER_SIZE);
+		if (ret > 0)
+			current_file->buffer[ret] = 0;
+		else
+		{
+			ft_file_remove(files, current_file->fd);
+			return (ret);
+		}
+	}
+	*size = update_line(current_file, line, *size);
+	if (current_file->start >= BUFFER_SIZE)
+		current_file->start = 0;
+	if ((*line)[*size - 1] == '\n')
+	{
+		(*line)[*size - 1] = 0;
+		return (1);
+	}
+	return (RET_SUCCESS);
+}
+
+int	get_next_line(int fd, char **line)
 {
 	int				ret;
 	int				size;
@@ -70,29 +107,8 @@ int				get_next_line(int fd, char **line)
 	current_file = get_current_file(&files, fd);
 	if (!current_file)
 		return (-1);
-	while (1)
-	{
-		if (!current_file->start)
-		{
-			ret = read(current_file->fd, current_file->buffer, BUFFER_SIZE);
-			if (ret > 0)
-				current_file->buffer[ret] = 0;
-			else
-			{
-				ft_file_remove(&files, current_file->fd);
-				return (ret);
-			}
-		}
-		//printf("start = %d \t size = %d last = %d\n", current_file->start, size, current_file->buffer[current_file->start]);
-		size = update_line(current_file, line, size);
-		if (current_file->start >= BUFFER_SIZE)
-			current_file->start = 0;
-		//printf("++start = %d \t size = %d last = %d\n", current_file->start, size, current_file->buffer[current_file->start]);
-		if ((*line)[size - 1] == '\n')
-		{
-			(*line)[size - 1] = 0;
-			return (1);
-		}
-	}
-	return (1);
+	ret = RET_SUCCESS;
+	while (ret == RET_SUCCESS)
+		ret = ft_fill_line(line, &files, current_file, &size);
+	return (ret);
 }

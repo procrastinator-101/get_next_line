@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+# define RET_SUCCESS	-2
+
 typedef struct		s_file
 {
 	int				fd;
@@ -27,12 +29,12 @@ typedef struct		s_file
 }					t_file;
 
 int					get_next_line(int fd, char **line);
-int					update_line(t_file *file, char **line, int size);
 void				*ft_memcpy(void *dst, const void *src, size_t n);
 
-t_file				*ft_file_addfront(t_file **files, t_file *node);
 t_file				*ft_file_create(int fd);
 t_file				*ft_file_find(t_file *files, int fd);
+
 void				ft_file_remove(t_file **files, int fd);
+void				ft_file_addfront(t_file **files, t_file *node);
 
 #endif

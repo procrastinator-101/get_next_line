@@ -79,14 +79,13 @@ t_file	*ft_file_find(t_file *files, int fd)
 	return (tail);
 }
 
-t_file	*ft_file_addfront(t_file **files, t_file *node)
+void	ft_file_addfront(t_file **files, t_file *node)
 {
 	if (node)
 	{
 		node->next = *files;
 		*files = node;
 	}
-
 }
 
 t_file	*ft_file_create(int fd)
@@ -99,4 +98,5 @@ t_file	*ft_file_create(int fd)
 	file->fd = fd;
 	file->start = 0;
 	file->next = 0;
+	return (file);
 }
